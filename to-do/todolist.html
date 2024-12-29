@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Study Tracker</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #4a90e2;
+            --secondary-color: #f5f5f5;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+            --text-color: #333;
+            --light-text: #6c757d;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--secondary-color), #e9ecef);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+            font-size: 2.5rem;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: var(--secondary-color);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-card i {
+            font-size: 24px;
+            margin-bottom: 10px;
+            color: var(--primary-color);
+        }
+
+        .todo-form {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .todo-input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .todo-input:focus {
+            border-color: var(--primary-color);
+            outline: none;
+        }
+
+        .add-button {
+            padding: 12px 25px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .add-button:hover {
+            background-color: #357abd;
+            transform: translateY(-2px);
+        }
+
+        .todo-list {
+            list-style: none;
+        }
+
+        .todo-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background: white;
+            border: 1px solid #ddd;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            transition: all 0.3s;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .todo-item.completed {
+            background-color: #f8f9fa;
+            border-left: 4px solid var(--success-color);
+        }
+
+        .todo-item.completed .todo-text {
+            text-decoration: line-through;
+            color: var(--light-text);
+        }
+
+        .todo-text {
+            flex: 1;
+            margin: 0 15px;
+        }
+
+        .todo-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-button {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            color: white;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .complete-button {
+            background-color: var(--success-color);
+        }
+
+        .delete-button {
+            background-color: var(--danger-color);
+        }
+
+        .action-button:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        .motivation {
+            margin-top: 30px;
+            padding: 20px;
+            background: #fff3cd;
+            border-radius: 8px;
+            text-align: center;
+            color: #856404;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 15px;
+            }
+
+            .todo-form {
+                flex-direction: column;
+            }
+
+            .add-button {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-graduation-cap"></i> Study Tracker</h1>
+            <p>Kelola tugas dan waktu belajarmu dengan efektif</p>
+        </div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <i class="fas fa-tasks"></i>
+                <h3>Total Tugas</h3>
+                <p id="totalTasks">0</p>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-check-circle"></i>
+                <h3>Tugas Selesai</h3>
+                <p id="completedTasks">0</p>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-clock"></i>
+                <h3>Progress</h3>
+                <p id="progressPercent">0%</p>
+            </div>
+        </div>
+
+        <form class="todo-form" id="todoForm">
+            <input type="text" class="todo-input" id="todoInput" placeholder="Tambahkan tugas baru..." required>
+            <button type="submit" class="add-button">
+                <i class="fas fa-plus"></i> Tambah
+            </button>
+        </form>
+
+        <ul class="todo-list" id="todoList"></ul>
+
+        <div class="motivation" id="motivationQuote"></div>
+    </div>
+
+    <script>
+        const todoForm = document.getElementById('todoForm');
+        const todoInput = document.getElementById('todoInput');
+        const todoList = document.getElementById('todoList');
+        const totalTasks = document.getElementById('totalTasks');
+        const completedTasks = document.getElementById('completedTasks');
+        const progressPercent = document.getElementById('progressPercent');
+        const motivationQuote = document.getElementById('motivationQuote');
+
+        let todos = JSON.parse(localStorage.getItem('todos')) || [];
+        const motivationalQuotes = [
+            "Belajar adalah harta yang akan mengikuti pemiliknya ke mana-mana.",
+            "Setiap langkah kecil membawa kita menuju tujuan besar.",
+            "Kesuksesan dimulai dengan langkah pertama.",
+            "Kegagalan adalah guru terbaik untuk kesuksesan.",
+            "Investasi terbaik adalah investasi dalam pendidikan."
+        ];
+
+        function updateStats() {
+            const total = todos.length;
+            const completed = todos.filter(todo => todo.completed).length;
+            const progress = total === 0 ? 0 : Math.round((completed / total) * 100);
+
+            totalTasks.textContent = total;
+            completedTasks.textContent = completed;
+            progressPercent.textContent = `${progress}%`;
+        }
+
+        function showRandomQuote() {
+            const randomIndex = Math.floor(Math.random() * motivationalQuotes.length);
+            motivationQuote.textContent = motivationalQuotes[randomIndex];
+        }
+
+        function saveTodos() {
+            localStorage.setItem('todos', JSON.stringify(todos));
+            updateStats();
+        }
+
+        function renderTodos() {
+            todoList.innerHTML = '';
+            todos.forEach((todo, index) => {
+                const li = document.createElement('li');
+                li.className = `todo-item ${todo.completed ? 'completed' : ''}`;
+
+                li.innerHTML = `
+                    <span class="todo-text">${todo.text}</span>
+                    <div class="todo-actions">
+                        <button class="action-button complete-button" onclick="toggleTodo(${index})">
+                            <i class="fas ${todo.completed ? 'fa-undo' : 'fa-check'}"></i>
+                            ${todo.completed ? 'Batal' : 'Selesai'}
+                        </button>
+                        <button class="action-button delete-button" onclick="deleteTodo(${index})">
+                            <i class="fas fa-trash"></i>
+                            Hapus
+                        </button>
+                    </div>
+                `;
+
+                todoList.appendChild(li);
+            });
+            updateStats();
+        }
+
+        function addTodo(text) {
+            todos.unshift({
+                text: text,
+                completed: false,
+                createdAt: new Date().toISOString()
+            });
+            saveTodos();
+            renderTodos();
+        }
+
+        function toggleTodo(index) {
+            todos[index].completed = !todos[index].completed;
+            saveTodos();
+            renderTodos();
+        }
+
+        function deleteTodo(index) {
+            if (confirm('Apakah Anda yakin ingin menghapus tugas ini?')) {
+                todos.splice(index, 1);
+                saveTodos();
+                renderTodos();
+            }
+        }
+
+        todoForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const todoText = todoInput.value.trim();
+
+            if (todoText) {
+                addTodo(todoText);
+                todoInput.value = '';
+                showRandomQuote();
+            }
+        });
+
+        // Initialize
+        renderTodos();
+        showRandomQuote();
+        setInterval(showRandomQuote, 30000); // Ganti quote setiap 30 detik
+    </script>
+</body>
+
+</html>
