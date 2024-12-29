@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minimal Pomodoro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2ecc71;
+            --secondary: #3498db;
+            --background: #ffffff;
+            --text: #2c3e50;
+            --subtle: #f6f8fa;
+            --accent: #e74c3c;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: var(--background);
+            color: var(--text);
+            display: flex;
+            overflow: hidden;
+        }
+
+        .split-container {
+            display: flex;
+            width: 100vw;
+            height: 100vh;
+            flex-direction: column;
+            /* Default to column for mobile */
+            overflow-y: auto;
+            /* Enable vertical scrolling */
+        }
+
+        /* Timer Section */
+        .timer-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            background: var(--subtle);
+            position: relative;
+        }
+
+        .timer-display {
+            font-size: 8rem;
+            font-weight: 300;
+            margin: 2rem 0;
+            color: var(--text);
+            font-variant-numeric: tabular-nums;
+            letter-spacing: -2px;
+        }
+
+        .timer-status {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .timer-controls {
+            display: flex;
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .settings-panel {
+            display: flex;
+            flex-direction: column;
+            /* Stack vertically */
+            gap: 1rem;
+            /* Space between settings */
+            padding: 1rem;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            width: 90%;
+            /* Make it responsive */
+            max-width: 400px;
+            /* Limit max width */
+            margin-top: 2rem;
+            /* Space above the settings panel */
+        }
+
+        .setting-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            width: 100%;
+            /* Full width */
+        }
+
+        label {
+            font-size: 1rem;
+            /* Adjust label font size */
+            color: var(--text);
+        }
+
+        input[type="number"] {
+            width: 100%;
+            /* Full width for input */
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 1rem;
+            text-align: center;
+        }
+
+        /* Music Section */
+        .music-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            background: white;
+        }
+
+        .spotify-container {
+            width: 100%;
+            max-width: 450px;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Button Styles */
+        button {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .primary-btn {
+            background: var(--primary);
+            color: white;
+        }
+
+        .secondary-btn {
+            background: var(--text);
+            color: white;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Responsive Design */
+        @media (min-width: 600px) {
+            .split-container {
+                flex-direction: row;
+                /* Change to row for larger screens */
+            }
+
+            .timer-section,
+            .music-section {
+                height: 100vh;
+                /* Full height for larger screens */
+            }
+
+            .timer-display {
+                font-size: 8rem;
+                /* Maintain large font size for desktop */
+            }
+
+            .settings-panel {
+                margin-top: 2rem;
+                /* Space above the settings panel */
+            }
+        }
+
+        @media (max-width: 600px) {
+            .timer-display {
+                font-size: 4rem;
+                /* Smaller font size for mobile */
+            }
+
+            .timer-status {
+                font-size: 1.2rem;
+                /* Adjust status font size for mobile */
+            }
+
+            .settings-panel {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .spotify-container {
+                max-width: 100%;
+                /* Full width for mobile */
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="split-container">
+        <!-- Timer Section -->
+        <section class="timer-section">
+            <div class="timer-status" id="timerStatus">Ready to Focus</div>
+            <div class="timer-display" id="timerDisplay">25:00</div>
+            <div class="timer-controls">
+                <button class="primary-btn" id="startBtn">Start</button>
+                <button class="secondary-btn" id="resetBtn">Reset</button>
+            </div>
+            <div class="settings-panel">
+                <div class="setting-group">
+                    <label for="workTime">Focus Time</label>
+                    <input type="number" id="workTime" value="25" min="1" max="60">
+                </div>
+                <div class="setting-group">
+                    <label for="breakTime">Break Time</label>
+                    <input type="number" id="breakTime" value="5" min="1" max="30">
+                </div>
+            </div>
+        </section>
+
+        <!-- Music Section -->
+        <section class="music-section">
+            <div class="spotify-container">
+                <iframe src="https://open.spotify.com/embed/artist/2YZyLoL8N0Wb9xBt1NhZWg?utm_source=generator"
+                    width="100%" height="352" frameBorder="0" allowfullscreen=""
+                    allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy">
+                </iframe>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // Global variables
+        let isRunning = false;
+        let timeLeft = 25 * 60;
+        let isWorkTime = true;
+        let timerInterval;
+
+        // DOM Elements
+        const timerDisplay = document.getElementById('timerDisplay');
+        const timerStatus = document.getElementById('timerStatus');
+        const startBtn = document.getElementById('startBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const workTimeInput = document.getElementById('workTime');
+        const breakTimeInput = document.getElementById('breakTime');
+
+        // Load saved settings
+        function loadSettings() {
+            const settings = JSON.parse(localStorage.getItem('pomodoroSettings') || '{}');
+            workTimeInput.value = settings.workTime || 25;
+            breakTimeInput.value = settings.breakTime || 5;
+            timeLeft = workTimeInput.value * 60;
+            updateDisplay();
+        }
+
+        // Save settings
+        function saveSettings() {
+            const settings = {
+                workTime: workTimeInput.value,
+                breakTime: breakTimeInput.value
+            };
+            localStorage.setItem('pomodoroSettings', JSON.stringify(settings));
+        }
+
+        // Format time function
+        function formatTime(seconds) {
+            const minutes = Math.floor(seconds / 60);
+            const remainingSeconds = seconds % 60;
+            return `${String(minutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}`;
+        }
+
+        // Update timer display
+        function updateDisplay() {
+            timerDisplay.textContent = formatTime(timeLeft);
+            timerStatus.textContent = isWorkTime ? 'Focus Time' : 'Break Time';
+            timerStatus.style.color = isWorkTime ? 'var(--primary)' : 'var(--secondary)';
+        }
+
+        // Timer functionality
+        function startTimer() {
+            if (!isRunning) {
+                isRunning = true;
+                startBtn.textContent = 'Pause';
+                timerInterval = setInterval(() => {
+                    timeLeft--;
+                    updateDisplay();
+
+                    if (timeLeft <= 0) {
+                        playNotification();
+                        isWorkTime = !isWorkTime;
+                        timeLeft = isWorkTime ? workTimeInput.value * 60 : breakTimeInput.value * 60;
+                        updateDisplay();
+                    }
+                }, 1000);
+            } else {
+                stopTimer();
+            }
+        }
+
+        // Stop timer
+        function stopTimer() {
+            clearInterval(timerInterval);
+            isRunning = false;
+            startBtn.textContent = 'Start';
+        }
+
+        // Reset timer
+        function resetTimer() {
+            stopTimer();
+            isWorkTime = true;
+            timeLeft = workTimeInput.value * 60;
+            updateDisplay();
+        }
+
+        // Notification sound
+        async function playNotification() {
+            try {
+                const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10...');
+                await audio.play();
+            } catch (error) {
+                console.error('Error playing notification:', error);
+            }
+        }
+
+        // Event Listeners
+        startBtn.addEventListener('click', startTimer);
+        resetBtn.addEventListener('click', resetTimer);
+
+        workTimeInput.addEventListener('change', () => {
+            if (!isRunning && isWorkTime) {
+                timeLeft = workTimeInput.value * 60;
+                updateDisplay();
+                saveSettings();
+            }
+        });
+
+        breakTimeInput.addEventListener('change', () => {
+            if (!isRunning && !isWorkTime) {
+                timeLeft = breakTimeInput.value * 60;
+                updateDisplay();
+                saveSettings();
+            }
+        });
+
+        // Initialize
+        loadSettings();
+    </script>
+</body>
+
+</html>
